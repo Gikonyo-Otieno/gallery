@@ -3,22 +3,15 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
 
-// Define routes
-let index = require('./routes/index');
-let image = require('./routes/image');
-
-// connecting the database
-let mongodb_url = 'mongodb://localhost:27017/';
-let dbName = 'darkroom';
-mongoose.connect(`${mongodb_url}${dbName}`,{ useNewUrlParser: true , useUnifiedTopology: true }, (err)=>{
-    if (err) console.log(err)
-});
+const config = require('./_config');
 
 // test if the database has connected successfully
-let db = mongoose.connection;
-db.once('open', ()=>{
-    console.log('Database connected successfully')
-})
+const env = process.env.NODE_ENV || 'development'; 
+const mongodb_url = config.mongoURI[env]; 
+
+mongoose.connect(mongodb_url, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log(`Database connected successfully to ${env} environment`))
+  .catch((err) => console.error('Database connection error:', err));
 
 // Initializing the app
 const app = express();
@@ -37,10 +30,12 @@ app.use(express.json())
 app.use('/', index);
 app.use('/image', image);
 
+const image = ('./routes/image');
+const index = ('./routes/index');
 
 
  
 const PORT = process.env.PORT || 5000;
 app.listen(PORT,() =>{
-    console.log(`Server is listening at http://localhost:${PORT}`)
+    console.log(`Server is listening at http://localhost:${PORT}`);
 });
