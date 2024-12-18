@@ -19,5 +19,15 @@ pipeline {
         sh 'node server.js'
       }
     }
+    stage('Deploy') {
+    steps {
+        script {
+            sh 'node server.js' // Starts the server
+            slackSend channel: '#integration-tests',
+                      message: "Build ID: ${env.BUILD_ID}, Deployed to: <Render_Link>"
+         }
+      }
+    }
+
   }
 }
